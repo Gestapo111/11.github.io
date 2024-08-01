@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación: PROBLEMAS ECOLÓGICOS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación: PROBLEMAS ECOLÓGICOS</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+        <div id="results"></div>
+    </div>
+    <footer>
+        &copy; derechos reservados Prof. Alberto Sanchez
+    </footer>
+    <script>
+        const quizData = [
+            {
+                question: "¿Qué es la deforestación?",
+                answers: [
+                    { text: "La eliminación de bosques y selvas.", correct: true },
+                    { text: "La plantación de nuevos árboles.", correct: false },
+                    { text: "La conservación de áreas forestales.", correct: false },
+                    { text: "El estudio de los árboles.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación del agua?",
+                answers: [
+                    { text: "La introducción de sustancias nocivas en cuerpos de agua.", correct: true },
+                    { text: "La purificación del agua.", correct: false },
+                    { text: "La conservación de los recursos hídricos.", correct: false },
+                    { text: "La gestión sostenible del agua.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la pérdida de biodiversidad?",
+                answers: [
+                    { text: "La disminución de la variedad de especies en un ecosistema.", correct: true },
+                    { text: "La introducción de especies invasoras.", correct: false },
+                    { text: "El aumento de la variedad de especies en un ecosistema.", correct: false },
+                    { text: "La creación de reservas naturales.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación del aire?",
+                answers: [
+                    { text: "La introducción de sustancias nocivas en la atmósfera.", correct: true },
+                    { text: "La mejora de la calidad del aire.", correct: false },
+                    { text: "La regulación de las emisiones industriales.", correct: false },
+                    { text: "El control de la contaminación por vehículos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el cambio climático?",
+                answers: [
+                    { text: "Un cambio significativo y duradero en los patrones del clima.", correct: true },
+                    { text: "Un fenómeno natural temporal.", correct: false },
+                    { text: "Un ciclo normal de la Tierra.", correct: false },
+                    { text: "Una variación en las estaciones del año.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el calentamiento global?",
+                answers: [
+                    { text: "El aumento gradual de la temperatura media de la Tierra.", correct: true },
+                    { text: "El enfriamiento gradual de la Tierra.", correct: false },
+                    { text: "Un fenómeno local.", correct: false },
+                    { text: "Un evento causado por la actividad solar.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la acidificación del océano?",
+                answers: [
+                    { text: "La disminución del pH de los océanos debido al aumento del dióxido de carbono.", correct: true },
+                    { text: "El aumento de la salinidad del océano.", correct: false },
+                    { text: "La reducción de la biodiversidad marina.", correct: false },
+                    { text: "El calentamiento de las aguas oceánicas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la desertificación?",
+                answers: [
+                    { text: "La degradación de tierras áridas.", correct: true },
+                    { text: "La expansión de los desiertos naturales.", correct: false },
+                    { text: "La reforestación de áreas desérticas.", correct: false },
+                    { text: "La urbanización de zonas rurales.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la sobrepesca?",
+                answers: [
+                    { text: "La captura excesiva de peces en los océanos.", correct: true },
+                    { text: "La conservación de especies marinas.", correct: false },
+                    { text: "La acuicultura intensiva.", correct: false },
+                    { text: "La regulación de las cuotas de pesca.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la basura marina?",
+                answers: [
+                    { text: "Desechos sólidos acumulados en los océanos.", correct: true },
+                    { text: "Materiales reciclables en el mar.", correct: false },
+                    { text: "La eliminación de residuos tóxicos en el océano.", correct: false },
+                    { text: "La limpieza de playas y costas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el efecto invernadero?",
+                answers: [
+                    { text: "El calentamiento de la Tierra debido a la acumulación de gases en la atmósfera.", correct: true },
+                    { text: "La disminución de la temperatura global.", correct: false },
+                    { text: "La variación estacional del clima.", correct: false },
+                    { text: "El aumento de la capa de ozono.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la capa de ozono?",
+                answers: [
+                    { text: "Una capa de la atmósfera que protege la Tierra de la radiación ultravioleta.", correct: true },
+                    { text: "Una capa de gases tóxicos.", correct: false },
+                    { text: "Una zona de alta presión atmosférica.", correct: false },
+                    { text: "Una capa de nubes en la atmósfera.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la energía renovable?",
+                answers: [
+                    { text: "Energía obtenida de recursos naturales que se renuevan constantemente.", correct: true },
+                    { text: "Energía obtenida de combustibles fósiles.", correct: false },
+                    { text: "Energía producida por la quema de residuos.", correct: false },
+                    { text: "Energía generada por reactores nucleares.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el reciclaje?",
+                answers: [
+                    { text: "El proceso de convertir residuos en nuevos productos.", correct: true },
+                    { text: "La eliminación de desechos en vertederos.", correct: false },
+                    { text: "La incineración de materiales no reciclables.", correct: false },
+                    { text: "La reducción de la producción de residuos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la huella de carbono?",
+                answers: [
+                    { text: "La cantidad total de emisiones de gases de efecto invernadero de una persona o entidad.", correct: true },
+                    { text: "La cantidad de dióxido de carbono en la atmósfera.", correct: false },
+                    { text: "La cantidad de energía renovable utilizada.", correct: false },
+                    { text: "La cantidad de residuos sólidos generados.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación del suelo?",
+                answers: [
+                    { text: "La presencia de sustancias tóxicas en el suelo.", correct: true },
+                    { text: "El aumento de la fertilidad del suelo.", correct: false },
+                    { text: "La erosión del suelo.", correct: false },
+                    { text: "La desertificación del suelo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el manejo sostenible de los recursos?",
+                answers: [
+                    { text: "La utilización de recursos de manera que se preserven para futuras generaciones.", correct: true },
+                    { text: "La explotación intensiva de recursos naturales.", correct: false },
+                    { text: "La reducción de la biodiversidad.", correct: false },
+                    { text: "La contaminación del medio ambiente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación lumínica?",
+                answers: [
+                    { text: "La presencia excesiva de luz artificial en el ambiente.", correct: true },
+                    { text: "La contaminación del agua por sustancias químicas.", correct: false },
+                    { text: "La disminución de la visibilidad debido a la contaminación del aire.", correct: false },
+                    { text: "La interferencia de señales de radio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación acústica?",
+                answers: [
+                    { text: "El exceso de ruido que afecta la salud y el bienestar de las personas.", correct: true },
+                    { text: "La contaminación del agua por sustancias químicas.", correct: false },
+                    { text: "La contaminación del suelo por residuos sólidos.", correct: false },
+                    { text: "La contaminación del aire por emisiones industriales.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la pérdida de hábitat?",
+                answers: [
+                    { text: "La destrucción o alteración de los lugares donde viven las especies.", correct: true },
+                    { text: "La migración de especies a nuevas áreas.", correct: false },
+                    { text: "La conservación de áreas protegidas.", correct: false },
+                    { text: "La creación de reservas naturales.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una especie en peligro de extinción?",
+                answers: [
+                    { text: "Una especie cuya supervivencia está amenazada.", correct: true },
+                    { text: "Una especie con una población estable.", correct: false },
+                    { text: "Una especie recientemente descubierta.", correct: false },
+                    { text: "Una especie que habita en múltiples regiones.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la erosión del suelo?",
+                answers: [
+                    { text: "El desgaste y desplazamiento de la capa superior del suelo por el viento y el agua.", correct: true },
+                    { text: "La fertilización del suelo.", correct: false },
+                    { text: "La compactación del suelo.", correct: false },
+                    { text: "La reforestación de áreas degradadas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la biomasa?",
+                answers: [
+                    { text: "Materia orgánica utilizada como fuente de energía.", correct: true },
+                    { text: "La cantidad total de especies en un área.", correct: false },
+                    { text: "La masa de un ecosistema.", correct: false },
+                    { text: "La cantidad de residuos sólidos generados.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación térmica?",
+                answers: [
+                    { text: "El aumento de la temperatura de cuerpos de agua debido a la actividad humana.", correct: true },
+                    { text: "La disminución de la temperatura global.", correct: false },
+                    { text: "La variación estacional del clima.", correct: false },
+                    { text: "El aumento de la temperatura atmosférica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el desarrollo sostenible?",
+                answers: [
+                    { text: "El desarrollo que satisface las necesidades del presente sin comprometer la capacidad de las futuras generaciones para satisfacer sus propias necesidades.", correct: true },
+                    { text: "El desarrollo  que prioriza el crecimiento económico sobre la conservación del medio ambiente.", correct: false },
+                    { text: "El desarrollo que ignora las preocupaciones ambientales.", correct: false },
+                    { text: "El desarrollo que reduce la biodiversidad.", correct: false }
+                ]
+            }
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 3;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            quizData.forEach((data, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question';
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerText = `${index + 1}. ${data.question}`;
+                questionContainer.appendChild(questionTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                shuffle(data.answers).forEach(answer => {
+                    const option = document.createElement('li');
+                    const optionLabel = document.createElement('label');
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question${index}`;
+                    optionInput.value = answer.correct;
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(answer.text));
+                    option.appendChild(optionLabel);
+                    optionsList.appendChild(option);
+                });
+
+                questionContainer.appendChild(optionsList);
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        function submitQuiz() {
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('results');
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
+            let score = 0;
+
+            quizData.forEach((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                if (selected === true) {
+                    score += 0.4; // Each correct answer is worth 0.4 points
+                }
+            });
+
+            score = Math.round(score * 10) / 10; // Round to one decimal place
+            let feedback = quizData.map((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                let result;
+                if (selected === null) {
+                    result = "No contestada";
+                } else if (selected === true) {
+                    result = "Correcta";
+                } else {
+                    result = "Incorrecta";
+                }
+                return `<p>${index + 1}. ${result}</p>`;
+            }).join("");
+
+            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+            }
+        }
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        loadQuiz();
+    </script>
+</body>
+</html>
