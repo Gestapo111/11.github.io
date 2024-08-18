@@ -3,307 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación: PROBLEMAS ECOLÓGICOS</title>
+    <title>Evaluación Unidad 11: Conociendo Ecosistemas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #333;
-        }
-        .quiz-container {
-            background-color: #fff;
             padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
+        }
+        #timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
         }
         .question {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
+        .question h3 {
             margin-bottom: 10px;
         }
-        button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        button:hover {
-            background-color: #218838;
-        }
-        #results {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            width: 100%;
-            text-align: center;
+        #resultsModal {
+            display: none;
             position: fixed;
-            bottom: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 500;
         }
     </style>
 </head>
 <body>
-    <h1>Evaluación: PROBLEMAS ECOLÓGICOS</h1>
-    <div class="quiz-container">
-        <div id="quiz"></div>
-        <button id="submit">Enviar respuestas</button>
-        <div id="results"></div>
+    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+
+    <div class="container">
+        <div id="studentInfoForm">
+            <h2>Información del Estudiante</h2>
+            <form id="infoForm">
+                <label for="name">Nombre del Estudiante:</label>
+                <input type="text" id="name" required><br><br>
+                <label for="nie">NIE:</label>
+                <input type="text" id="nie" required><br><br>
+                <label for="unit">Unidad Evaluada:</label>
+                <input type="text" id="unit" value="Unidad 11: Conociendo Ecosistemas" readonly><br><br>
+                <button type="submit">Iniciar Evaluación</button>
+            </form>
+        </div>
+
+        <div id="quiz" class="hidden">
+            <h2>Evaluación Unidad 11: Conociendo Ecosistemas</h2>
+
+            <div id="questions-container"></div>
+
+            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
+        </div>
+
+        <div id="resultsModal">
+            <h2>Resultados</h2>
+            <p id="date"></p>
+            <p id="timeTaken"></p>
+            <p id="unitEvaluated"></p>
+            <p id="studentName"></p>
+            <p id="studentNIE"></p>
+            <p id="score"></p>
+            <p id="incorrectAnswers"></p>
+            <button id="closeModal">Cerrar</button>
+        </div>
+
+        <div id="overlay"></div>
     </div>
-    <footer>
-        &copy; derechos reservados Prof. Alberto Sanchez
-    </footer>
+
     <script>
-        const quizData = [
+        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
+        const maxTime = 30 * 60; // 30 minutos en segundos
+        let timeRemaining = maxTime;
+        const timerElement = document.getElementById('time');
+        let startTime;
+
+        const questions = [
+            // Indicador 11.1
             {
-                question: "¿Qué es la deforestación?",
-                answers: [
-                    { text: "La eliminación de bosques y selvas.", correct: true },
-                    { text: "La plantación de nuevos árboles.", correct: false },
-                    { text: "La conservación de áreas forestales.", correct: false },
-                    { text: "El estudio de los árboles.", correct: false }
+                id: 'q1',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Qué estudia la ecología?",
+                options: [
+                    { value: 'a', text: "Las relaciones entre los seres vivos y su entorno." },
+                    { value: 'b', text: "La estructura del ADN en los seres vivos." },
+                    { value: 'c', text: "El comportamiento de los animales en cautiverio." },
+                    { value: 'd', text: "La distribución de minerales en la corteza terrestre." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del agua?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en cuerpos de agua.", correct: true },
-                    { text: "La purificación del agua.", correct: false },
-                    { text: "La conservación de los recursos hídricos.", correct: false },
-                    { text: "La gestión sostenible del agua.", correct: false }
+                id: 'q2',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Qué es la autoecología?",
+                options: [
+                    { value: 'a', text: "El estudio de las relaciones de un solo organismo con su entorno." },
+                    { value: 'b', text: "El estudio de las relaciones entre varias especies en un ecosistema." },
+                    { value: 'c', text: "La observación de ecosistemas acuáticos." },
+                    { value: 'd', text: "El análisis de cadenas alimenticias en un bioma." }
                 ]
             },
             {
-                question: "¿Qué es la pérdida de biodiversidad?",
-                answers: [
-                    { text: "La disminución de la variedad de especies en un ecosistema.", correct: true },
-                    { text: "La introducción de especies invasoras.", correct: false },
-                    { text: "El aumento de la variedad de especies en un ecosistema.", correct: false },
-                    { text: "La creación de reservas naturales.", correct: false }
+                id: 'q3',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Qué es la sinecología?",
+                options: [
+                    { value: 'a', text: "El estudio de las relaciones entre diferentes especies dentro de un mismo ecosistema." },
+                    { value: 'b', text: "El análisis de las relaciones de un individuo con su entorno." },
+                    { value: 'c', text: "La evaluación del impacto humano en los ecosistemas." },
+                    { value: 'd', text: "La descripción de los ciclos de nutrientes en un hábitat." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del aire?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en la atmósfera.", correct: true },
-                    { text: "La mejora de la calidad del aire.", correct: false },
-                    { text: "La regulación de las emisiones industriales.", correct: false },
-                    { text: "El control de la contaminación por vehículos.", correct: false }
+                id: 'q4',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Cuál de los siguientes es un ejemplo de un estudio autoecológico?",
+                options: [
+                    { value: 'a', text: "El impacto de la temperatura en la tasa de fotosíntesis de una planta específica." },
+                    { value: 'b', text: "La interacción entre depredadores y presas en un ecosistema." },
+                    { value: 'c', text: "El ciclo del nitrógeno en un ecosistema." },
+                    { value: 'd', text: "La diversidad de especies en un bosque tropical." }
                 ]
             },
             {
-                question: "¿Qué es el cambio climático?",
-                answers: [
-                    { text: "Un cambio significativo y duradero en los patrones del clima.", correct: true },
-                    { text: "Un fenómeno natural temporal.", correct: false },
-                    { text: "Un ciclo normal de la Tierra.", correct: false },
-                    { text: "Una variación en las estaciones del año.", correct: false }
+                id: 'q5',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Qué enfoque caracteriza a la sinecología?",
+                options: [
+                    { value: 'a', text: "El estudio de comunidades ecológicas y las interacciones entre sus miembros." },
+                    { value: 'b', text: "La medición del crecimiento de una población específica." },
+                    { value: 'c', text: "El análisis de las cadenas tróficas en un bioma particular." },
+                    { value: 'd', text: "La observación de los cambios estacionales en un bioma." }
                 ]
             },
             {
-                question: "¿Qué es el calentamiento global?",
-                answers: [
-                    { text: "El aumento gradual de la temperatura media de la Tierra.", correct: true },
-                    { text: "El enfriamiento gradual de la Tierra.", correct: false },
-                    { text: "Un fenómeno local.", correct: false },
-                    { text: "Un evento causado por la actividad solar.", correct: false }
+                id: 'q6',
+                indicator: 'Indicador 11.1: Representa, analiza e interpreta con seguridad el objeto de estudio de la ecología, autoecología y sinecología.',
+                question: "¿Cómo se diferencian la autoecología y la sinecología en sus áreas de estudio?",
+                options: [
+                    { value: 'a', text: "La autoecología se enfoca en un solo organismo, mientras que la sinecología estudia las interacciones entre varias especies." },
+                    { value: 'b', text: "La autoecología estudia comunidades, mientras que la sinecología se enfoca en individuos." },
+                    { value: 'c', text: "La autoecología analiza ciclos biogeoquímicos, mientras que la sinecología estudia cadenas alimenticias." },
+                    { value: 'd', text: "La autoecología se basa en experimentos de laboratorio, mientras que la sinecología se centra en estudios de campo." }
+                ]
+            },
+            // Indicador 11.2
+            {
+                id: 'q7',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Cuál de los siguientes es un bioma terrestre?",
+                options: [
+                    { value: 'a', text: "La tundra." },
+                    { value: 'b', text: "El océano." },
+                    { value: 'c', text: "Un río." },
+                    { value: 'd', text: "Un lago." }
                 ]
             },
             {
-                question: "¿Qué es la acidificación del océano?",
-                answers: [
-                    { text: "La disminución del pH de los océanos debido al aumento del dióxido de carbono.", correct: true },
-                    { text: "El aumento de la salinidad del océano.", correct: false },
-                    { text: "La reducción de la biodiversidad marina.", correct: false },
-                    { text: "El calentamiento de las aguas oceánicas.", correct: false }
+                id: 'q8',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Qué característica define al bioma de la selva tropical?",
+                options: [
+                    { value: 'a', text: "Alta biodiversidad y alta precipitación." },
+                    { value: 'b', text: "Bajas temperaturas y baja precipitación." },
+                    { value: 'c', text: "Escasa vegetación y temperaturas extremas." },
+                    { value: 'd', text: "Predominancia de coníferas y suelos ácidos." }
                 ]
             },
             {
-                question: "¿Qué es la desertificación?",
-                answers: [
-                    { text: "La degradación de tierras áridas.", correct: true },
-                    { text: "La expansión de los desiertos naturales.", correct: false },
-                    { text: "La reforestación de áreas desérticas.", correct: false },
-                    { text: "La urbanización de zonas rurales.", correct: false }
+                id: 'q9',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Dónde se encuentra principalmente el bioma de la taiga?",
+                options: [
+                    { value: 'a', text: "En las latitudes altas del hemisferio norte." },
+                    { value: 'b', text: "En el ecuador." },
+                    { value: 'c', text: "En las regiones costeras del hemisferio sur." },
+                    { value: 'd', text: "En los desiertos del hemisferio norte." }
                 ]
             },
             {
-                question: "¿Qué es la sobrepesca?",
-                answers: [
-                    { text: "La captura excesiva de peces en los océanos.", correct: true },
-                    { text: "La conservación de especies marinas.", correct: false },
-                    { text: "La acuicultura intensiva.", correct: false },
-                    { text: "La regulación de las cuotas de pesca.", correct: false }
+                id: 'q10',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Cuál es una característica clave del bioma del desierto?",
+                options: [
+                    { value: 'a', text: "Baja precipitación y adaptaciones a la sequía." },
+                    { value: 'b', text: "Alta precipitación y vegetación densa." },
+                    { value: 'c', text: "Suelos ricos en nutrientes y estaciones marcadas." },
+                    { value: 'd', text: "Biodiversidad alta y temperaturas templadas." }
                 ]
             },
             {
-                question: "¿Qué es la basura marina?",
-                answers: [
-                    { text: "Desechos sólidos acumulados en los océanos.", correct: true },
-                    { text: "Materiales reciclables en el mar.", correct: false },
-                    { text: "La eliminación de residuos tóxicos en el océano.", correct: false },
-                    { text: "La limpieza de playas y costas.", correct: false }
+                id: 'q11',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Qué bioma se caracteriza por inviernos largos y fríos y veranos cortos y frescos?",
+                options: [
+                    { value: 'a', text: "La taiga." },
+                    { value: 'b', text: "El bosque caducifolio." },
+                    { value: 'c', text: "La sabana." },
+                    { value: 'd', text: "El desierto." }
                 ]
             },
             {
-                question: "¿Qué es el efecto invernadero?",
-                answers: [
-                    { text: "El calentamiento de la Tierra debido a la acumulación de gases en la atmósfera.", correct: true },
-                    { text: "La disminución de la temperatura global.", correct: false },
-                    { text: "La variación estacional del clima.", correct: false },
-                    { text: "El aumento de la capa de ozono.", correct: false }
+                id: 'q12',
+                indicator: 'Indicador 11.2: Indaga, representa y ubica geográficamente y describe los principales biomas terrestres.',
+                question: "¿Qué bioma se caracteriza por una vegetación dominada por pastos y pocos árboles?",
+                options: [
+                    { value: 'a', text: "La sabana." },
+                    { value: 'b', text: "La tundra." },
+                    { value: 'c', text: "La selva tropical." },
+                    { value: 'd', text: "La taiga." }
+                ]
+            },
+            // Indicador 11.3
+            {
+                id: 'q13',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Qué es una población en términos ecológicos?",
+                options: [
+                    { value: 'a', text: "Un grupo de individuos de la misma especie que viven en un área específica." },
+                    { value: 'b', text: "Todas las especies que viven en un ecosistema." },
+                    { value: 'c', text: "La suma de todas las cadenas alimenticias en un bioma." },
+                    { value: 'd', text: "El hábitat natural de una especie específica." }
                 ]
             },
             {
-                question: "¿Qué es la capa de ozono?",
-                answers: [
-                    { text: "Una capa de la atmósfera que protege la Tierra de la radiación ultravioleta.", correct: true },
-                    { text: "Una capa de gases tóxicos.", correct: false },
-                    { text: "Una zona de alta presión atmosférica.", correct: false },
-                    { text: "Una capa de nubes en la atmósfera.", correct: false }
+                id: 'q14',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Qué es un ecosistema?",
+                options: [
+                    { value: 'a', text: "Un sistema formado por una comunidad de seres vivos y su entorno abiótico." },
+                    { value: 'b', text: "Un área geográfica donde se encuentran varias especies de animales." },
+                    { value: 'c', text: "Un grupo de hábitats conectados por corredores biológicos." },
+                    { value: 'd', text: "Una cadena alimenticia dentro de un bioma particular." }
                 ]
             },
             {
-                question: "¿Qué es la energía renovable?",
-                answers: [
-                    { text: "Energía obtenida de recursos naturales que se renuevan constantemente.", correct: true },
-                    { text: "Energía obtenida de combustibles fósiles.", correct: false },
-                    { text: "Energía producida por la quema de residuos.", correct: false },
-                    { text: "Energía generada por reactores nucleares.", correct: false }
+                id: 'q15',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Qué papel juegan las relaciones tróficas en un ecosistema?",
+                options: [
+                    { value: 'a', text: "Definen las conexiones de alimentación entre diferentes organismos." },
+                    { value: 'b', text: "Determinan la estructura geológica del hábitat." },
+                    { value: 'c', text: "Regulan la temperatura del ecosistema." },
+                    { value: 'd', text: "Afectan la cantidad de agua disponible." }
                 ]
             },
             {
-                question: "¿Qué es el reciclaje?",
-                answers: [
-                    { text: "El proceso de convertir residuos en nuevos productos.", correct: true },
-                    { text: "La eliminación de desechos en vertederos.", correct: false },
-                    { text: "La incineración de materiales no reciclables.", correct: false },
-                    { text: "La reducción de la producción de residuos.", correct: false }
+                id: 'q16',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Cuál es la diferencia entre un hábitat y un ecosistema?",
+                options: [
+                    { value: 'a', text: "Un hábitat es el lugar donde vive una especie; un ecosistema incluye la comunidad de seres vivos y su entorno." },
+                    { value: 'b', text: "Un hábitat incluye varias especies; un ecosistema incluye solo una especie." },
+                    { value: 'c', text: "Un hábitat es un tipo de bioma; un ecosistema es un tipo de hábitat." },
+                    { value: 'd', text: "Un hábitat es una cadena alimenticia; un ecosistema es una red trófica." }
                 ]
             },
             {
-                question: "¿Qué es la huella de carbono?",
-                answers: [
-                    { text: "La cantidad total de emisiones de gases de efecto invernadero de una persona o entidad.", correct: true },
-                    { text: "La cantidad de dióxido de carbono en la atmósfera.", correct: false },
-                    { text: "La cantidad de energía renovable utilizada.", correct: false },
-                    { text: "La cantidad de residuos sólidos generados.", correct: false }
+                id: 'q17',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Qué es un ciclo biogeoquímico?",
+                options: [
+                    { value: 'a', text: "El ciclo de un elemento químico entre el entorno abiótico y los organismos vivos." },
+                    { value: 'b', text: "La transferencia de energía entre diferentes niveles tróficos." },
+                    { value: 'c', text: "El ciclo de vida de una planta desde la germinación hasta la descomposición." },
+                    { value: 'd', text: "La interacción entre depredadores y presas en un ecosistema." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del suelo?",
-                answers: [
-                    { text: "La presencia de sustancias tóxicas en el suelo.", correct: true },
-                    { text: "El aumento de la fertilidad del suelo.", correct: false },
-                    { text: "La erosión del suelo.", correct: false },
-                    { text: "La desertificación del suelo.", correct: false }
+                id: 'q18',
+                indicator: 'Indicador 11.3: Indaga y compara con interés las relaciones entre especie, población, comunidad, ecosistema, hábitat, relaciones tróficas, cadena alimenticia y ciclo biogeoquímico.',
+                question: "¿Qué elemento es fundamental en las cadenas alimenticias?",
+                options: [
+                    { value: 'a', text: "La transferencia de energía de un organismo a otro." },
+                    { value: 'b', text: "El reciclaje de nutrientes entre el suelo y las plantas." },
+                    { value: 'c', text: "El crecimiento de la población de una especie." },
+                    { value: 'd', text: "La distribución de los hábitats en un bioma." }
+                ]
+            },
+            // Indicador 11.4
+            {
+                id: 'q19',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Por qué son importantes los ecosistemas acuáticos para la sostenibilidad global?",
+                options: [
+                    { value: 'a', text: "Regulan el clima y proveen hábitats para una diversidad de especies." },
+                    { value: 'b', text: "Almacenan carbono y forman el suelo." },
+                    { value: 'c', text: "Son la principal fuente de oxígeno para el planeta." },
+                    { value: 'd', text: "Reducen la erosión del suelo y facilitan la polinización." }
                 ]
             },
             {
-                question: "¿Qué es el manejo sostenible de los recursos?",
-                answers: [
-                    { text: "La utilización de recursos de manera que se preserven para futuras generaciones.", correct: true },
-                    { text: "La explotación intensiva de recursos naturales.", correct: false },
-                    { text: "La reducción de la biodiversidad.", correct: false },
-                    { text: "La contaminación del medio ambiente.", correct: false }
+                id: 'q20',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Qué rol juegan los ecosistemas terrestres en la sostenibilidad del planeta?",
+                options: [
+                    { value: 'a', text: "Proveen hábitats y recursos, como alimentos y materiales." },
+                    { value: 'b', text: "Son la principal fuente de agua dulce." },
+                    { value: 'c', text: "Almacenan todos los nutrientes necesarios para las plantas." },
+                    { value: 'd', text: "Reducen la salinidad del agua marina." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación lumínica?",
-                answers: [
-                    { text: "La presencia excesiva de luz artificial en el ambiente.", correct: true },
-                    { text: "La contaminación del agua por sustancias químicas.", correct: false },
-                    { text: "La disminución de la visibilidad debido a la contaminación del aire.", correct: false },
-                    { text: "La interferencia de señales de radio.", correct: false }
+                id: 'q21',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Cómo contribuyen los ecosistemas acuáticos a la regulación del clima?",
+                options: [
+                    { value: 'a', text: "Almacenan grandes cantidades de calor y carbono." },
+                    { value: 'b', text: "Reflejan la radiación solar y enfrían el planeta." },
+                    { value: 'c', text: "Absorben nutrientes de la atmósfera." },
+                    { value: 'd', text: "Aumentan la salinidad de los suelos." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación acústica?",
-                answers: [
-                    { text: "El exceso de ruido que afecta la salud y el bienestar de las personas.", correct: true },
-                    { text: "La contaminación del agua por sustancias químicas.", correct: false },
-                    { text: "La contaminación del suelo por residuos sólidos.", correct: false },
-                    { text: "La contaminación del aire por emisiones industriales.", correct: false }
+                id: 'q22',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Qué ecosistema terrestre es crucial para la sostenibilidad debido a su capacidad de almacenar carbono?",
+                options: [
+                    { value: 'a', text: "Los bosques tropicales." },
+                    { value: 'b', text: "Las praderas." },
+                    { value: 'c', text: "Los desiertos." },
+                    { value: 'd', text: "Las tundras." }
                 ]
             },
             {
-                question: "¿Qué es la pérdida de hábitat?",
-                answers: [
-                    { text: "La destrucción o alteración de los lugares donde viven las especies.", correct: true },
-                    { text: "La migración de especies a nuevas áreas.", correct: false },
-                    { text: "La conservación de áreas protegidas.", correct: false },
-                    { text: "La creación de reservas naturales.", correct: false }
+                id: 'q23',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Cuál es la importancia de los manglares en los ecosistemas costeros?",
+                options: [
+                    { value: 'a', text: "Protegen las costas de la erosión y actúan como criaderos de especies marinas." },
+                    { value: 'b', text: "Son fuentes principales de sal marina." },
+                    { value: 'c', text: "Aumentan la temperatura del agua." },
+                    { value: 'd', text: "Disminuyen la biodiversidad en las costas." }
                 ]
             },
             {
-                question: "¿Qué es una especie en peligro de extinción?",
-                answers: [
-                    { text: "Una especie cuya supervivencia está amenazada.", correct: true },
-                    { text: "Una especie con una población estable.", correct: false },
-                    { text: "Una especie recientemente descubierta.", correct: false },
-                    { text: "Una especie que habita en múltiples regiones.", correct: false }
+                id: 'q24',
+                indicator: 'Indicador 11.4: Indaga y analiza con interés la importancia de los ecosistemas acuáticos y terrestres para la sostenibilidad del planeta.',
+                question: "¿Por qué son esenciales los arrecifes de coral para la vida marina?",
+                options: [
+                    { value: 'a', text: "Proveen hábitat y protección para una gran diversidad de especies." },
+                    { value: 'b', text: "Aumentan la cantidad de oxígeno disuelto en el agua." },
+                    { value: 'c', text: "Producen grandes cantidades de materia orgánica." },
+                    { value: 'd', text: "Actúan como principales productores de sal marina." }
+                ]
+            },
+            // Indicador 11.5
+            {
+                id: 'q25',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Qué ciclo biogeoquímico está directamente relacionado con la fotosíntesis?",
+                options: [
+                    { value: 'a', text: "El ciclo del carbono." },
+                    { value: 'b', text: "El ciclo del nitrógeno." },
+                    { value: 'c', text: "El ciclo del fósforo." },
+                    { value: 'd', text: "El ciclo del agua." }
                 ]
             },
             {
-                question: "¿Qué es la erosión del suelo?",
-                answers: [
-                    { text: "El desgaste y desplazamiento de la capa superior del suelo por el viento y el agua.", correct: true },
-                    { text: "La fertilización del suelo.", correct: false },
-                    { text: "La compactación del suelo.", correct: false },
-                    { text: "La reforestación de áreas degradadas.", correct: false }
+                id: 'q26',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Cuál es una fuente principal de fósforo en el ciclo biogeoquímico?",
+                options: [
+                    { value: 'a', text: "La erosión de rocas y suelos." },
+                    { value: 'b', text: "La combustión de combustibles fósiles." },
+                    { value: 'c', text: "La fijación biológica." },
+                    { value: 'd', text: "La evaporación del agua." }
                 ]
             },
             {
-                question: "¿Qué es la biomasa?",
-                answers: [
-                    { text: "Materia orgánica utilizada como fuente de energía.", correct: true },
-                    { text: "La cantidad total de especies en un área.", correct: false },
-                    { text: "La masa de un ecosistema.", correct: false },
-                    { text: "La cantidad de residuos sólidos generados.", correct: false }
+                id: 'q27',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Cuál es la importancia del ciclo del nitrógeno para los ecosistemas?",
+                options: [
+                    { value: 'a', text: "Es esencial para la síntesis de proteínas y ácidos nucleicos." },
+                    { value: 'b', text: "Proporciona energía a los productores primarios." },
+                    { value: 'c', text: "Controla la temperatura de los ecosistemas acuáticos." },
+                    { value: 'd', text: "Regula la precipitación en los biomas terrestres." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación térmica?",
-                answers: [
-                    { text: "El aumento de la temperatura de cuerpos de agua debido a la actividad humana.", correct: true },
-                    { text: "La disminución de la temperatura global.", correct: false },
-                    { text: "La variación estacional del clima.", correct: false },
-                    { text: "El aumento de la temperatura atmosférica.", correct: false }
+                id: 'q28',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Cuál es el papel del ciclo del agua en el clima global?",
+                options: [
+                    { value: 'a', text: "Regula la temperatura y distribuye la humedad a nivel global." },
+                    { value: 'b', text: "Aumenta la acidez de los océanos." },
+                    { value: 'c', text: "Reduce la salinidad de los mares." },
+                    { value: 'd', text: "Controla la concentración de oxígeno en la atmósfera." }
                 ]
             },
             {
-                question: "¿Qué es el desarrollo sostenible?",
-                answers: [
-                    { text: "El desarrollo que satisface las necesidades del presente sin comprometer la capacidad de las futuras generaciones para satisfacer sus propias necesidades.", correct: true },
-                    { text: "El desarrollo  que prioriza el crecimiento económico sobre la conservación del medio ambiente.", correct: false },
-                    { text: "El desarrollo que ignora las preocupaciones ambientales.", correct: false },
-                    { text: "El desarrollo que reduce la biodiversidad.", correct: false }
+                id: 'q29',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Cuál de los siguientes procesos está relacionado con el ciclo del oxígeno?",
+                options: [
+                    { value: 'a', text: "La fotosíntesis y la respiración." },
+                    { value: 'b', text: "La fijación del nitrógeno." },
+                    { value: 'c', text: "La fosilización de la materia orgánica." },
+                    { value: 'd', text: "La evaporación del agua." }
+                ]
+            },
+            {
+                id: 'q30',
+                indicator: 'Indicador 11.5: Representa, analiza y compara con seguridad los ciclos biogeoquímicos del carbono, nitrógeno, oxígeno, fósforo y agua.',
+                question: "¿Cómo afecta la deforestación al ciclo del carbono?",
+                options: [
+                    { value: 'a', text: "Aumenta la cantidad de dióxido de carbono en la atmósfera." },
+                    { value: 'b', text: "Disminuye la cantidad de oxígeno en el suelo." },
+                    { value: 'c', text: "Interrumpe el ciclo del nitrógeno." },
+                    { value: 'd', text: "Reduce la cantidad de fósforo disponible en los ecosistemas." }
                 ]
             }
         ];
 
-        let attempt = 0;
-        const maxAttempts = 3;
+        const correctAnswerKeys = {
+            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a', q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a',
+            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a', q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a',
+            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a', q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a'
+        };
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -313,80 +454,99 @@
             return array;
         }
 
-        function loadQuiz() {
-            const quizContainer = document.getElementById('quiz');
-            quizContainer.innerHTML = '';
-            quizData.forEach((data, index) => {
-                const questionContainer = document.createElement('div');
-                questionContainer.className = 'question';
+        function displayQuestions() {
+            const container = document.getElementById('questions-container');
+            const shuffledQuestions = shuffle([...questions]);
 
-                const questionTitle = document.createElement('h3');
-                questionTitle.innerText = `${index + 1}. ${data.question}`;
-                questionContainer.appendChild(questionTitle);
-
-                const optionsList = document.createElement('ul');
-                optionsList.className = 'options';
-
-                shuffle(data.answers).forEach(answer => {
-                    const option = document.createElement('li');
-                    const optionLabel = document.createElement('label');
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'radio';
-                    optionInput.name = `question${index}`;
-                    optionInput.value = answer.correct;
-                    optionLabel.appendChild(optionInput);
-                    optionLabel.appendChild(document.createTextNode(answer.text));
-                    option.appendChild(optionLabel);
-                    optionsList.appendChild(option);
-                });
-
-                questionContainer.appendChild(optionsList);
-                quizContainer.appendChild(questionContainer);
+            shuffledQuestions.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question');
+                questionElement.innerHTML = `
+                    <h3>${q.indicator}</h3>
+                    <p>${index + 1}. ${q.question}</p>
+                    ${q.options.map(option => `
+                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
+                    `).join('')}
+                `;
+                container.appendChild(questionElement);
             });
         }
 
-        function submitQuiz() {
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
+        function startTimer() {
+            document.getElementById('timer').classList.remove('hidden');
+            startTime = new Date();
+            const timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeRemaining === 0) {
+                    clearInterval(timerInterval);
+                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
+                }
+                timeRemaining--;
+            }, 1000);
+        }
+
+        document.getElementById('infoForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const nie = document.getElementById('nie').value;
+
+            if (!nieList.includes(nie)) {
+                alert("NIE no autorizado.");
                 return;
             }
 
-            const resultsContainer = document.getElementById('results');
-            const answers = document.querySelectorAll('input[type="radio"]:checked');
-            let score = 0;
+            document.getElementById('studentInfoForm').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            displayQuestions();
+            startTimer();
+        });
 
-            quizData.forEach((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                if (selected === true) {
-                    score += 0.4; // Each correct answer is worth 0.4 points
+        document.getElementById('submitQuiz').addEventListener('click', function () {
+            let correctAnswers = 0;
+            let incorrectAnswers = [];
+
+            questions.forEach(q => {
+                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
+                        correctAnswers++;
+                    } else {
+                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
+                    }
                 }
             });
 
-            score = Math.round(score * 10) / 10; // Round to one decimal place
-            let feedback = quizData.map((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                let result;
-                if (selected === null) {
-                    result = "No contestada";
-                } else if (selected === true) {
-                    result = "Correcta";
-                } else {
-                    result = "Incorrecta";
-                }
-                return `<p>${index + 1}. ${result}</p>`;
-            }).join("");
+            const score = (correctAnswers / questions.length) * 10;
+            const endTime = new Date();
+            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
 
-            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
+        });
 
-            attempt++;
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
-            }
+        function showResults(scoreText, incorrectAnswers, timeTaken) {
+            const date = new Date();
+            const minutesTaken = Math.floor(timeTaken / 60);
+            const secondsTaken = timeTaken % 60;
+
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultsModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
+            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 11: Conociendo Ecosistemas`;
+            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
+            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
+            document.getElementById('score').textContent = scoreText;
+            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
         }
 
-        document.getElementById('submit').addEventListener('click', submitQuiz);
-
-        loadQuiz();
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('resultsModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        });
     </script>
 </body>
 </html>
