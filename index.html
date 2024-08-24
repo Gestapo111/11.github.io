@@ -502,70 +502,82 @@
         }
 
         function submitQuiz() {
-            const fullname = document.getElementById('fullname').value.trim();
-            const nie = document.getElementById('nie').value.trim();
+    const fullname = document.getElementById('fullname').value.trim();
+    const nie = document.getElementById('nie').value.trim();
 
-            if (!fullname || !nie) {
-                alert('Por favor, ingresa tu nombre completo y NIE.');
-                return;
+    if (!fullname || !nie) {
+        alert('Por favor, ingresa tu nombre completo y NIE.');
+        return;
+    }
+
+    if (attempt >= maxAttempts) {
+        alert('Has alcanzado el número máximo de intentos.');
+        return;
+    }
+
+    const answers = document.querySelectorAll('input[type="radio"]:checked');
+    let incorrectAnswers = [];
+
+    let questionCount = 0;
+
+    quizData.forEach((section) => {
+        section.questions.forEach((data, index) => {
+            const selected = answers[questionCount] ? answers[questionCount].value === 'true' : null;
+            if (selected === false || selected === null) {
+                incorrectAnswers.push(questionCount + 1);
             }
+            questionCount++;
+        });
+    });
 
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
-                return;
-            }
+    const correctAnswersCount = questionCount - incorrectAnswers.length;
+    
+    // Verificar si se ha seleccionado al menos una respuesta
+    if (answers.length === 0) {
+        alert('No has seleccionado ninguna respuesta. Tu calificación es 0/10.');
+    }
 
-            const answers = document.querySelectorAll('input[type="radio"]:checked');
-            let incorrectAnswers = [];
+    const score = (correctAnswersCount / questionCount * 10).toFixed(2);
 
-            let questionCount = 0;
+    // Mostrar los resultados en el modal
+    document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
+    document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
+    const modalIncorrectAnswers = document.getElementById('modalIncorrectAnswers');
+    modalIncorrectAnswers.innerHTML = '';
+    incorrectAnswers.forEach((questionNumber) => {
+        const div = document.createElement('div');
+        div.innerText = `Pregunta ${questionNumber}`;
+        modalIncorrectAnswers.appendChild(div);
+    });
 
-            quizData.forEach((section) => {
-                section.questions.forEach((data, index) => {
-                    const selected = answers[questionCount] ? answers[questionCount].value === 'true' : null;
-                    if (selected === false || selected === null) {
-                        incorrectAnswers.push(questionCount + 1);
-                    }
-                    questionCount++;
-                });
-            });
+    // Mostrar detalles adicionales
+    const endTime = new Date();
+    const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+    const currentDate = new Date();
+    const modalDetails = document.getElementById('modalDetails');
+    modalDetails.innerHTML = `
+        Fecha: ${currentDate.toLocaleDateString()}<br>
+        Hora: ${currentDate.toLocaleTimeString()}<br>
+        Tiempo en realizar la prueba: ${timeTaken} segundos<br>
+        Nombre de la unidad: ${evaluationName}<br>
+        Calificación: ${answers.length === 0 ? '0.00' : score}/10
+    `;
 
-            // Mostrar los resultados en el modal
-            document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
-            document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
-            const modalIncorrectAnswers = document.getElementById('modalIncorrectAnswers');
-            modalIncorrectAnswers.innerHTML = '';
-            incorrectAnswers.forEach((questionNumber) => {
-                const div = document.createElement('div');
-                div.innerText = `Pregunta ${questionNumber}`;
-                modalIncorrectAnswers.appendChild(div);
-            });
+    // Mostrar intentos de manipulación
+    document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
 
-            // Mostrar detalles adicionales
-            const endTime = new Date();
-            const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
-            const currentDate = new Date();
-            const modalDetails = document.getElementById('modalDetails');
-            modalDetails.innerHTML = `
-                Fecha: ${currentDate.toLocaleDateString()}<br>
-                Hora: ${currentDate.toLocaleTimeString()}<br>
-                Tiempo en realizar la prueba: ${timeTaken} segundos<br>
-                Nombre de la unidad: ${evaluationName}<br>
-               Calificación: ${((questionCount - incorrectAnswers.length) / questionCount * 10).toFixed(2)}/10
-            `;
+    // Mostrar contador de reintentos
+    document.getElementById('attemptCount').innerText = `Reintentos: ${attempt + 1}`;
 
-            // Mostrar intentos de manipulación
-            document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
+    const modal = document.getElementById('resultModal');
+    modal.style.display = 'block';
 
-            // Mostrar contador de reintentos
-            document.getElementById('attemptCount').innerText = `Reintentos: ${attempt + 1}`;
-
-            const modal = document.getElementById('resultModal');
-            modal.style.display = 'block';
-
-            attempt++;
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
+    attempt++;
+    if (attempt >= maxAttempts) {
+        alert('Has alcanzado el número máximo de intentos.');
+        // Aquí puedes agregar código para bloquear la MAC o deshabilitar la evaluación
+    }
+}
                 // Aquí puedes agregar código para bloquear la MAC o deshabilitar la evaluación
             }
         }
